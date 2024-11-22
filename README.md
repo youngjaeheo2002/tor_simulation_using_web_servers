@@ -29,3 +29,9 @@ Idea:
 - when trying to access a website because it doens't serve to your Country, make a slightly less random route with the exit node at an allowed Country
 - when trying to access a .onion site just give a warnign and get back the response
 
+### Setup
+
+isntall dependencies using:
+```{}
+pip install -r requirements.txt
+```
