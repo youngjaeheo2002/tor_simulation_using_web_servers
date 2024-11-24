@@ -23,12 +23,14 @@ import json
 from jsonschema import validate
 from jsonschema.exceptions import ValidationError, SchemaError
 from django.views.decorators.csrf import csrf_exempt
+from cryptography.fernet import Fernet
+import os
+from .utils import read_local_json
 BASE = 'http://localhost:'
 SERVER_ERROR = JsonResponse({"message":"something went wrong"},status = 500)
 def ping(request):
     return JsonResponse({"message":"Router is active"})
 
-def sendtoNext(dst_ip,payload,)
 @csrf_exempt
 def routePackets(request):
     '''
@@ -65,24 +67,27 @@ def routePackets(request):
             return SERVER_ERROR
         
         src_ip = host.split(":")[1]
-        encrypted_payload = body_json['encrypted_payload']
+        encrypted_payload = body_json['encrypted_payload'].encode('utf-8')
         
         #when encyrpted you put the code to decrypt using a shared key method
+        key_path = os.path.join(os.path.dirname(__file__), "local_data", "data.json")
+        session_key = read_local_json('keys.json')[src_ip].encode()
 
 
         #after decryption
+        cipher = Fernet(session_key)
+        decrypted_payload = json.loads(cipher.decrypt(encrypted_payload).decode())
 
-        dst_ip = encrypted_payload['dst_ip']
+
+        dst_ip = decrypted_payload['dst_ip']
         if dst_ip == 'server':
             return JsonResponse({"message":"some content"})
-        next_payload = encrypted_payload['encrypted_payload']
+        next_payload = decrypted_payload['encrypted_payload']
 
-        try:
-            url = BASE + dst_ip + "/route_packets"
-
-
-
-        return JsonResponse({"message":"everything is good so far"})
+        url = BASE + dst_ip + "/route_packets"
+        response = requests.post(url,json={"encrypted_payload":next_payload})
+        response.raise_for_status()
+        return JsonResponse(response.json(),safe = False)
     
     except json.JSONDecodeError:
         return JsonResponse({"error": "Invalid JSON"}, status=400)
