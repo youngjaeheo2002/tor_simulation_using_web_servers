@@ -25,6 +25,7 @@ from jsonschema.exceptions import ValidationError, SchemaError
 from django.views.decorators.csrf import csrf_exempt
 from cryptography.fernet import Fernet
 import os
+import sys
 from .utils import read_local_json
 BASE = 'http://localhost:'
 SERVER_ERROR = JsonResponse({"message":"something went wrong"},status = 500)
@@ -58,34 +59,36 @@ def routePackets(request):
 
     raw_body = request.body
     body_str = raw_body.decode('utf-8')
+    print(raw_body)
     try:
         body_json = json.loads(body_str)
+        print(body_json,file = sys.stderr)
         # validate(instance=body_json,schema= schema)
-        host = request.get_host()
-        
-        if not ":" in host:
-            return SERVER_ERROR
-        
-        src_ip = host.split(":")[1]
+        src_ip = body_json['src_ip']
+
+
         encrypted_payload = body_json['encrypted_payload'].encode('utf-8')
         
         #when encyrpted you put the code to decrypt using a shared key method
         key_path = os.path.join(os.path.dirname(__file__), "local_data", "data.json")
+        print(read_local_json('keys.json'),file = sys.stderr)
         session_key = read_local_json('keys.json')[src_ip].encode()
 
 
         #after decryption
         cipher = Fernet(session_key)
         decrypted_payload = json.loads(cipher.decrypt(encrypted_payload).decode())
+        dst_ip  = decrypted_payload['dst_ip']
 
-
-        dst_ip = decrypted_payload['dst_ip']
-        if dst_ip == 'server':
+        if (dst_ip == "server"):
             return JsonResponse({"message":"some content"})
         next_payload = decrypted_payload['encrypted_payload']
 
-        url = BASE + dst_ip + "/route_packets"
-        response = requests.post(url,json={"encrypted_payload":next_payload})
+        url = "http://router" + dst_ip+":8000"+ "/route_packets"
+        response = requests.post(url,json={
+            "src_ip":body_json['dst_ip'],
+            "dst_ip":dst_ip,
+            "encrypted_payload":next_payload})
         response.raise_for_status()
         return JsonResponse(response.json(),safe = False)
     

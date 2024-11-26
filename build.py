@@ -39,6 +39,11 @@ for ip in keys.keys():
     with open(path,'w') as f:
         json.dump(keys[ip],f,indent=4)
 
+path = f'./keys/all_keys.json'
+
+with open(path,'w') as f:
+    json.dump(keys,f,indent = 4)
+
 #generate my docker-compose.yml
 
 
@@ -59,11 +64,12 @@ for router in routers:
     }
 
 docker_compose = {
-    "version":"3.9",
+    "version":"3.3",
     "services":services
 }
-with open("docker-compose.yml","w") as f:
-    yaml.dump(docker_compose,f,default_flow_style=False)
+with open("docker-compose.yml", "w") as f:
+    f.write("version: '3.3'\n")
+    yaml.dump({"services": services}, f, default_flow_style=False)
 
 print("build finished")
 

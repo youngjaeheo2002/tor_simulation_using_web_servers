@@ -8,4 +8,4 @@ RUN pip install --no-cache-dir -r requirements.txt
  
 EXPOSE 8000
 
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "router.wsgi:application"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "1", "--log-level", "info", "--access-logfile", "-", "--error-logfile", "-", "router.wsgi:application"]
