@@ -31,7 +31,22 @@ Idea:
 
 ### Setup
 
-isntall dependencies using:
-```{}
-pip install -r requirements.txt
+first install docker: https://docs.docker.com/engine/install/ any version 17.06.0 or later supports compose file format 3.3
+
+next install docker-compose version: https://docs.docker.com/compose/install/
+
+Then create the network using docker and docker-compose
+
+```{bash}
+$docker compose up 
 ```
+
+or 
+
+```{bash}
+$docker compose up -d
+```
+
+this will create the network of routers between the client and server
+
+
