@@ -41,7 +41,7 @@ def routePackets(request):
     encrypted_payload:""}
     '''
     '''
-    at thsi current point teh payload is not encrypted
+    at this current point teh payload is not encrypted
     '''
     # schema = {
     #     "type": "object",
