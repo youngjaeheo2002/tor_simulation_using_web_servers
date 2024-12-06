@@ -1,3 +1,4 @@
+version: '3.3'
 services:
   router8000:
     build:
@@ -6,7 +7,7 @@ services:
     ports:
     - 8000:8000
     volumes:
-    - ./keys/8000.json:/app/keys.json
+    - ./keys/8000.json:/app/router/local_data/keys.json
   router8001:
     build:
       context: ./router
@@ -14,7 +15,7 @@ services:
     ports:
     - 8001:8000
     volumes:
-    - ./keys/8001.json:/app/keys.json
+    - ./keys/8001.json:/app/router/local_data/keys.json
   router8002:
     build:
       context: ./router
@@ -22,7 +23,7 @@ services:
     ports:
     - 8002:8000
     volumes:
-    - ./keys/8002.json:/app/keys.json
+    - ./keys/8002.json:/app/router/local_data/keys.json
   router8003:
     build:
       context: ./router
@@ -30,7 +31,7 @@ services:
     ports:
     - 8003:8000
     volumes:
-    - ./keys/8003.json:/app/keys.json
+    - ./keys/8003.json:/app/router/local_data/keys.json
   router8004:
     build:
       context: ./router
@@ -38,7 +39,7 @@ services:
     ports:
     - 8004:8000
     volumes:
-    - ./keys/8004.json:/app/keys.json
+    - ./keys/8004.json:/app/router/local_data/keys.json
   router8005:
     build:
       context: ./router
@@ -46,7 +47,7 @@ services:
     ports:
     - 8005:8000
     volumes:
-    - ./keys/8005.json:/app/keys.json
+    - ./keys/8005.json:/app/router/local_data/keys.json
   router8006:
     build:
       context: ./router
@@ -54,7 +55,7 @@ services:
     ports:
     - 8006:8000
     volumes:
-    - ./keys/8006.json:/app/keys.json
+    - ./keys/8006.json:/app/router/local_data/keys.json
   router8007:
     build:
       context: ./router
@@ -62,7 +63,7 @@ services:
     ports:
     - 8007:8000
     volumes:
-    - ./keys/8007.json:/app/keys.json
+    - ./keys/8007.json:/app/router/local_data/keys.json
   router8008:
     build:
       context: ./router
@@ -70,7 +71,7 @@ services:
     ports:
     - 8008:8000
     volumes:
-    - ./keys/8008.json:/app/keys.json
+    - ./keys/8008.json:/app/router/local_data/keys.json
   router8009:
     build:
       context: ./router
@@ -78,5 +79,4 @@ services:
     ports:
     - 8009:8000
     volumes:
-    - ./keys/8009.json:/app/keys.json
-version: '3.9'
+    - ./keys/8009.json:/app/router/local_data/keys.json
