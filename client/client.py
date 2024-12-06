@@ -1,6 +1,9 @@
 import sys
 import json
 import random
+from cryptography.fernet import Fernet
+import requests
+
 
 # Path to the JSON file
 json_file_path = "keys/client.json"
@@ -19,6 +22,25 @@ def requestWithoutTor(dst):
     return
 
 
+# Load keys from JSON file
+keys = {}
+with open("../keys/all_keys.json", "r") as f:
+    keys = json.load(f)
+
+# Function to simulate encrypting and sending data between routers
+def create_encrypted_payload(src_ip, dst_ip, payload):
+    # Extract the key for the current hop (src_ip -> dst_ip)
+    key = keys[src_ip][dst_ip]
+    
+    if not key:
+        print(f"Error: Key missing for {src_ip} -> {dst_ip}")
+        return None
+
+    cipher = Fernet(key)  # Initialize the cipher with the key
+    payload_string = json.dumps(payload).encode()  # Convert payload to string
+    encrypted_payload = cipher.encrypt(payload_string).decode()  # Encrypt the payload
+    return encrypted_payload
+
 # request picking three routers out of 10
 def requestUsingTor(dst):
     # Randomly select three routers
@@ -26,19 +48,44 @@ def requestUsingTor(dst):
     first = "800" + str(random_selection[0])
     second = "800" + str(random_selection[1])
     third = "800" + str(random_selection[2])
+    print(first,second,third)
+    client = "client"
 
-    # Load the JSON file with keys
-    json_file_path = "keys/client.json"
-    with open(json_file_path, 'r') as file:
-        data = json.load(file)
+    # Encrypting from the innermost to the outermost payload
+    # Step 1: Encrypt payload from third router to server
+    p3 = {
+        "encrypted_payload": "Hi Its Bob",
+        "src_ip": third,
+        "dst_ip": "server",
+    }
 
-    # Retrieve public keys for each router
-    key_first = data.get(first)
-    key_second = data.get(second)
-    key_third = data.get(third)
+    # Step 2: Encrypt payload from second router to third router
+    p2 = {
+        "encrypted_payload": p3,
+        "src_ip": second,
+        "dst_ip": third,
+    }
+    encrypted_p2 = create_encrypted_payload(second, third, p2)
 
-    
-    return
+    # Step 3: Encrypt payload from first router to second router
+    p1 = {
+        "encrypted_payload": encrypted_p2,
+        "src_ip": first,
+        "dst_ip": second,
+    }
+    encrypted_p1 = create_encrypted_payload(first, second, p1)
+
+    # Step 4: Encrypt payload from client to first router
+    p0 = {
+        "encrypted_payload": encrypted_p1,
+        "src_ip": "client",
+        "dst_ip": first,
+    }
+    encrypted_p0 = create_encrypted_payload(client, first, p0)
+    url = "http://localhost:"+first+"/route_packets"
+    response = requests.post(url,json=encrypted_p0)
+    print(response)
+    return encrypted_p0
 
 if __name__ == "__main__":
 
