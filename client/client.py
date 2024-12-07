@@ -3,8 +3,6 @@ import json
 import random
 from cryptography.fernet import Fernet
 import requests
-
-
 # Path to the JSON file
 json_file_path = "keys/client.json"
 
@@ -24,7 +22,7 @@ def requestWithoutTor(dst):
 
 # Load keys from JSON file
 keys = {}
-with open("../keys/all_keys.json", "r") as f:
+with open("./keys/all_keys.json", "r") as f:
     keys = json.load(f)
 
 # Function to simulate encrypting and sending data between routers
@@ -54,7 +52,7 @@ def requestUsingTor(dst):
     # Encrypting from the innermost to the outermost payload
     # Step 1: Encrypt payload from third router to server
     p3 = {
-        "encrypted_payload": "Hi Its Bob",
+        "payload": "Hi its Bob",
         "src_ip": third,
         "dst_ip": "server",
     }
@@ -81,11 +79,17 @@ def requestUsingTor(dst):
         "src_ip": "client",
         "dst_ip": first,
     }
-    encrypted_p0 = create_encrypted_payload(client, first, p0)
+
+    #url = f"http://router{first}:8000/route_packets"
+    # If you're running client.py on your host (outside Docker):
     url = "http://localhost:"+first+"/route_packets"
-    response = requests.post(url,json=encrypted_p0)
-    print(response)
-    return encrypted_p0
+    response = requests.get(url, json=p0)
+    print(response.content)
+    # Send the HTTP POST request
+    #response = requests.post(url, json={"encrypted_payload": encrypted_p0, "src_ip":"client","dst_ip": first})
+    #response.raise_for_status()
+
+    return 
 
 if __name__ == "__main__":
 

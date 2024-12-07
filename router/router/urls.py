@@ -52,7 +52,7 @@ def routePackets(request):
     #     },
     #     "required": ["dst_ip","encrypted_payload"]
     # }
-    if request.method != 'POST':
+    if request.method != 'GET':
         return SERVER_ERROR
     
 
