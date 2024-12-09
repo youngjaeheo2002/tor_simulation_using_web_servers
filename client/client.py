@@ -52,7 +52,7 @@ def requestUsingTor(dst):
     p3 = {
         "payload": "Hi its Bob",
         "src_ip": third,
-        "dst_ip": "server",
+        "dst_ip": dst,
     }
 
     encrypted_p3 = create_encrypted_payload(second, third, p3)
@@ -110,7 +110,7 @@ if __name__ == "__main__":
 
     DESTINATION = args[2]
 
-    if DESTINATION not in ['www.malicious.onion','www.regular_website.com','toronto_news.com']:
+    if DESTINATION not in ['www.malicious.onion','www.regular_website.com','www.toronto_news.com']:
 
         exit(0)
 

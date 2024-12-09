@@ -84,8 +84,7 @@ def routePackets(request):
         write_payload(decrypted_payload,"decrypted_payload.json")
         dst_ip  = decrypted_payload['dst_ip']
 
-        if dst_ip == "server":
-            return JsonResponse({"message":"some content"})
+        if dst_ip == 'www.malicious.onion' or dst_ip == 'www.regular_website.com' or dst_ip == 'www.toronto_news.com':
             #Send the request to the server's URL
             server_url = "server" #REPLACE WITH REAL SERVER URL
             server_response = requests.post(server_url, json=decrypted_payload)
