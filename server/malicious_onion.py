@@ -2,7 +2,7 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 import json
 
 class MaliciousOnionHandler(BaseHTTPRequestHandler):
-    def do_GET(self):
+    def do_POST(self):
         # Extract the server's address
         host, port = self.server.server_address
         # Extract the client's IP address from client_address tuple

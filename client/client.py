@@ -49,29 +49,29 @@ def requestUsingTor(dst):
     print(first,second,third)
     client = "client"
 
-    # Encrypting from the innermost to the outermost payload
-    # Step 1: Encrypt payload from third router to server
     p3 = {
         "payload": "Hi its Bob",
         "src_ip": third,
         "dst_ip": "server",
     }
 
+    encrypted_p3 = create_encrypted_payload(second, third, p3)
     # Step 2: Encrypt payload from second router to third router
     p2 = {
-        "encrypted_payload": p3,
+        "encrypted_payload": encrypted_p3,
         "src_ip": second,
         "dst_ip": third,
     }
-    encrypted_p2 = create_encrypted_payload(second, third, p2)
-
+    
+    encrypted_p2 = create_encrypted_payload(first, second, p2)
     # Step 3: Encrypt payload from first router to second router
     p1 = {
         "encrypted_payload": encrypted_p2,
         "src_ip": first,
         "dst_ip": second,
     }
-    encrypted_p1 = create_encrypted_payload(first, second, p1)
+    
+    encrypted_p1 = create_encrypted_payload(client,first,p1)
 
     # Step 4: Encrypt payload from client to first router
     p0 = {
@@ -83,7 +83,7 @@ def requestUsingTor(dst):
     #url = f"http://router{first}:8000/route_packets"
     # If you're running client.py on your host (outside Docker):
     url = "http://localhost:"+first+"/route_packets"
-    response = requests.get(url, json=p0)
+    response = requests.post(url, json=p0)
     print(response.content)
     # Send the HTTP POST request
     #response = requests.post(url, json={"encrypted_payload": encrypted_p0, "src_ip":"client","dst_ip": first})

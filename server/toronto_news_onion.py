@@ -2,7 +2,7 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 import json
 
 class TorontoNewsOnionHandler(BaseHTTPRequestHandler):
-    def do_GET(self):
+    def do_POST(self):
         # Extract the server's address
         host, port = self.server.server_address
         # Construct a JSON response with name and address
