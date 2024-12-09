@@ -42,7 +42,7 @@ def routePackets(request):
     encrypted_payload:""}
     '''
     '''
-    at thsi current point teh payload is not encrypted
+    at this current point teh payload is not encrypted
     '''
     # schema = {
     #     "type": "object",
@@ -52,7 +52,7 @@ def routePackets(request):
     #     },
     #     "required": ["dst_ip","encrypted_payload"]
     # }
-    if request.method != 'POST':
+    if request.method != 'GET':
         return SERVER_ERROR
     
 
