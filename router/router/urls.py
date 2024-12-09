@@ -27,6 +27,7 @@ from cryptography.fernet import Fernet
 import os
 import sys
 from .utils import read_local_json
+from .utils import write_payload
 BASE = 'http://localhost:'
 SERVER_ERROR = JsonResponse({"message":"something went wrong"},status = 500)
 def ping(request):
@@ -62,6 +63,7 @@ def routePackets(request):
     print(raw_body)
     try:
         body_json = json.loads(body_str)
+        write_payload(body_json,"payload_received.json")
         print(body_json,file = sys.stderr)
         # validate(instance=body_json,schema= schema)
         src_ip = body_json['src_ip']
@@ -78,11 +80,19 @@ def routePackets(request):
         #after decryption
         cipher = Fernet(session_key)
         decrypted_payload = json.loads(cipher.decrypt(encrypted_payload).decode())
+
+        write_payload(decrypted_payload,"decrypted_payload.json")
         dst_ip  = decrypted_payload['dst_ip']
 
         if (dst_ip == "server"):
             return JsonResponse({"message":"some content"})
         next_payload = decrypted_payload['encrypted_payload']
+
+        write_payload({
+            "src_ip":body_json['dst_ip'],
+            "dst_ip":dst_ip,
+            "encrypted_payload":next_payload},
+            "payload_for_next_send.json")
 
         url = "http://router" + dst_ip+":8000"+ "/route_packets"
         response = requests.post(url,json={
@@ -99,6 +109,8 @@ def routePackets(request):
         send_backwards = {
             "encrypted_payload":encrypted_response
         }
+
+        write_payload(send_backwards,"payload_sent_to_previous_layer.json")
 
         return JsonResponse(send_backwards,safe = False)
     
