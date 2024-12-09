@@ -84,8 +84,26 @@ def routePackets(request):
         write_payload(decrypted_payload,"decrypted_payload.json")
         dst_ip  = decrypted_payload['dst_ip']
 
-        if (dst_ip == "server"):
-            return JsonResponse({"message":"some content"})
+        if dst_ip == 'www.malicious.onion' or dst_ip == 'www.regular_website.com' or dst_ip == 'www.toronto_news.com':
+            #Send the request to the server's URL
+            server_url = "server" #REPLACE WITH REAL SERVER URL
+            server_response = requests.post(server_url, json=decrypted_payload)
+
+            if server_response.status_code == 200:
+                response_body = server_response.content
+
+                encrypted_response = cipher.encrypt(response_body).decode()
+
+                send_backwards = {
+                    "encrypted_payload": encrypted_response
+                }
+                #recording purposes
+                write_payload(send_backwards, "payload_sent_to_previous_layer.json")
+                
+                return JsonResponse({"message": "Payload sent back successfully"})
+            else:
+                return JsonResponse({"error": "Failed to get response from the server"}, status=server_response.status_code)
+        
         next_payload = decrypted_payload['encrypted_payload']
 
         write_payload({
@@ -101,16 +119,6 @@ def routePackets(request):
             "encrypted_payload":next_payload})
         response.raise_for_status()
 
-        #re-encrypt response back to client
-        response_body = response.content
-
-        encrypted_response = cipher.encrypt(response_body).decode()
-
-        send_backwards = {
-            "encrypted_payload":encrypted_response
-        }
-
-        write_payload(send_backwards,"payload_sent_to_previous_layer.json")
 
         return JsonResponse(send_backwards,safe = False)
     

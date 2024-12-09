@@ -3,6 +3,7 @@ import yaml
 import os
 nodes = ['client','8000','8001','8002','8003','8004','8005','8006','8007','8008','8009']
 routers = ['8000','8001','8002','8003','8004','8005','8006','8007','8008','8009']
+servers = ['toronto_news_onion','regular_website','malicious_onion']
 from cryptography.fernet import Fernet
 #8080 is the server client is a script and 800 0-9 are routers in between
 keys = {}
@@ -49,6 +50,23 @@ with open(path,'w') as f:
 
 services = {}
 
+
+port = "8020"
+for server in servers:
+    services[f"{server}"] = {
+        "build": {
+            "context": f"./server/{server}"
+        },
+        "container_name": f"{server}",
+        "ports": [
+            f"{port}:{port}"
+        ],
+        "command": f"python {server}.py"
+    }
+    num = int(port) + 1
+    port = str(num)
+
+
 for router in routers:
     services[f"router{router}"] = {
         "build":{
@@ -63,9 +81,11 @@ for router in routers:
         ]
     }
 
+print(services)
 docker_compose = {
     "version":"3.3",
     "services":services
+
 }
 with open("docker-compose.yml", "w") as f:
     f.write("version: '3.3'\n")
