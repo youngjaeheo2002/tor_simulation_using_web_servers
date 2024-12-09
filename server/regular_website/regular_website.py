@@ -1,17 +1,14 @@
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import json
 
-class MaliciousOnionHandler(BaseHTTPRequestHandler):
+class RegularWebsiteHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         # Extract the server's address
         host, port = self.server.server_address
-        # Extract the client's IP address from client_address tuple
-        client_ip = self.client_address[0]
         # Construct a JSON response with name and address
         response_content = {
-            "name": "Malicious Onion",
-            "address": f"{host}:{port}",
-            "client_ip": client_ip
+            "name": "Regular Website",
+            "address": f"{host}:{port}"
         }
 
         self.send_response(200)
@@ -20,8 +17,8 @@ class MaliciousOnionHandler(BaseHTTPRequestHandler):
         self.wfile.write(json.dumps(response_content).encode('utf-8'))
 
 def run_server(port=8002):
-    server = HTTPServer(('', port), MaliciousOnionHandler)
-    print(f"Malicious Onion running on port {port}")
+    server = HTTPServer(('', port), RegularWebsiteHandler)
+    print(f"Regular Website running on port {port}")
     server.serve_forever()
 
 if __name__ == '__main__':

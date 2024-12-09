@@ -85,7 +85,15 @@ def routePackets(request):
         dst_ip  = decrypted_payload['dst_ip']
 
         if (dst_ip == "server"):
+            #re-encrypt response back to client
+            response_body = response.content
+            encrypted_response = cipher.encrypt(response_body).decode()
+            send_backwards = {
+                "encrypted_payload":encrypted_response
+            }
+            write_payload(send_backwards,"payload_sent_to_previous_layer.json")
             return JsonResponse({"message":"some content"})
+
         next_payload = decrypted_payload['encrypted_payload']
 
         write_payload({
@@ -101,16 +109,6 @@ def routePackets(request):
             "encrypted_payload":next_payload})
         response.raise_for_status()
 
-        #re-encrypt response back to client
-        response_body = response.content
-
-        encrypted_response = cipher.encrypt(response_body).decode()
-
-        send_backwards = {
-            "encrypted_payload":encrypted_response
-        }
-
-        write_payload(send_backwards,"payload_sent_to_previous_layer.json")
 
         return JsonResponse(send_backwards,safe = False)
     
