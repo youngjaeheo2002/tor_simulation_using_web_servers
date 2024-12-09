@@ -48,6 +48,30 @@ print(payload_to_8001)
 response = requests.post("http://localhost:8001/route_packets",json=payload_to_8001)
 
 print(response.content)
+first_response = json.loads(response.content.decode())
+print(first_response)
+print("decrypting once")
+
+key = keys["client"]["8001"]
+cipher = Fernet(key)
+
+after_first_decryption = json.loads(cipher.decrypt(first_response['encrypted_payload']).decode())
+
+print(f"After first decryption: {after_first_decryption}")
+
+key = keys["8001"]["8002"]
+cipher = Fernet(key)
+
+after_second_decryption = json.loads(cipher.decrypt(after_first_decryption['encrypted_payload']).decode())
+
+print(f"After second decryption: {after_second_decryption}")
+
+key = keys["8002"]["8003"]
+cipher = Fernet(key)
+after_third_decryption = json.loads(cipher.decrypt(after_second_decryption['encrypted_payload']).decode())
+
+print(f"after third decryption: {after_third_decryption}")
+
 
 
 

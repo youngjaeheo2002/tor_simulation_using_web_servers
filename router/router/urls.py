@@ -52,7 +52,7 @@ def routePackets(request):
     #     },
     #     "required": ["dst_ip","encrypted_payload"]
     # }
-    if request.method != 'GET':
+    if request.method != 'POST':
         return SERVER_ERROR
     
 
@@ -90,7 +90,17 @@ def routePackets(request):
             "dst_ip":dst_ip,
             "encrypted_payload":next_payload})
         response.raise_for_status()
-        return JsonResponse(response.json(),safe = False)
+
+        #re-encrypt response back to client
+        response_body = response.content
+
+        encrypted_response = cipher.encrypt(response_body).decode()
+
+        send_backwards = {
+            "encrypted_payload":encrypted_response
+        }
+
+        return JsonResponse(send_backwards,safe = False)
     
     except json.JSONDecodeError:
         return JsonResponse({"error": "Invalid JSON"}, status=400)
