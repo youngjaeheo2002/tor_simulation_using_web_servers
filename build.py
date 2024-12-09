@@ -3,7 +3,7 @@ import yaml
 import os
 nodes = ['client','8000','8001','8002','8003','8004','8005','8006','8007','8008','8009']
 routers = ['8000','8001','8002','8003','8004','8005','8006','8007','8008','8009']
-servers = ['malicious_onion','regular_website','toronto_news_onion']
+servers = ['toronto_news_onion','regular_website','malicious_onion']
 from cryptography.fernet import Fernet
 #8080 is the server client is a script and 800 0-9 are routers in between
 keys = {}
@@ -51,7 +51,7 @@ with open(path,'w') as f:
 services = {}
 
 
-port = "8001"
+port = "8020"
 for server in servers:
     services[f"{server}"] = {
         "build": {

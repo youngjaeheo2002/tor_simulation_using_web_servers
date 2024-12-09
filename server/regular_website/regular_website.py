@@ -8,7 +8,7 @@ class RegularWebsiteHandler(BaseHTTPRequestHandler):
         # Construct a JSON response with name and address
         response_content = {
             "name": "Regular Website",
-            "address": f"{host}:{port}"
+            "address": f"regular_website:{port}"
         }
 
         self.send_response(200)
@@ -16,10 +16,10 @@ class RegularWebsiteHandler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(json.dumps(response_content).encode('utf-8'))
 
-def run_server(port=8002):
+def run_server(port=8021):
     server = HTTPServer(('', port), RegularWebsiteHandler)
     print(f"Regular Website running on port {port}")
     server.serve_forever()
 
 if __name__ == '__main__':
-    run_server(8002)
+    run_server()

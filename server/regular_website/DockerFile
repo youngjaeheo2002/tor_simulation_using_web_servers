@@ -5,7 +5,7 @@ WORKDIR /app
 
 COPY regular_website.py /app/
 
-EXPOSE 8002
+EXPOSE 8021
 
 CMD ["python", "regular_website.py"]
 

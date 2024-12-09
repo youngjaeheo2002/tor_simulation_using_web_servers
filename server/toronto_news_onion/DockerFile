@@ -5,6 +5,6 @@ WORKDIR /app
 
 COPY toronto_news_onion.py /app/
 
-EXPOSE 8003
+EXPOSE 8020
 
 CMD ["python", "toronto_news_onion.py"]
