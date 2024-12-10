@@ -64,7 +64,7 @@ def routePackets(request):
     try:
         body_json = json.loads(body_str)
         write_payload(body_json,"payload_received.json")
-        print(body_json,file = sys.stderr)
+        # print(body_json,file = sys.stderr)
         # validate(instance=body_json,schema= schema)
         src_ip = body_json['src_ip']
 
@@ -73,7 +73,7 @@ def routePackets(request):
         
         #when encyrpted you put the code to decrypt using a shared key method
         key_path = os.path.join(os.path.dirname(__file__), "local_data", "data.json")
-        print(read_local_json('keys.json'),file = sys.stderr)
+        # print(read_local_json('keys.json'),file = sys.stderr)
         session_key = read_local_json('keys.json')[src_ip].encode()
 
 
@@ -84,28 +84,8 @@ def routePackets(request):
         write_payload(decrypted_payload,"decrypted_payload.json")
         dst_ip  = decrypted_payload['dst_ip']
 
-        if dst_ip == 'www.malicious.onion' or dst_ip == 'www.regular_website.com' or dst_ip == 'www.toronto_news.com':
-            #Send the request to the server's URL
-            server_url = "server" #REPLACE WITH REAL SERVER URL
-            server_response = requests.post(server_url, json=decrypted_payload)
-
-            if server_response.status_code == 200:
-                response_body = server_response.content
-
-                encrypted_response = cipher.encrypt(response_body).decode()
-
-                send_backwards = {
-                    "encrypted_payload": encrypted_response
-                }
-                #recording purposes
-                write_payload(send_backwards, "payload_sent_to_previous_layer.json")
-                
-                return JsonResponse({"message": "Payload sent back successfully"})
-            else:
-                return JsonResponse({"error": "Failed to get response from the server"}, status=server_response.status_code)
-        
-        next_payload = decrypted_payload['encrypted_payload']
-
+        # print(dst_ip,file = sys.stderr)
+        next_payload = decrypted_payload.get('encrypted_payload',decrypted_payload.get('payload',{"default_payload":"non-meaninful-data"}))
         write_payload({
             "src_ip":body_json['dst_ip'],
             "dst_ip":dst_ip,
@@ -113,12 +93,30 @@ def routePackets(request):
             "payload_for_next_send.json")
 
         url = "http://router" + dst_ip+":8000"+ "/route_packets"
-        response = requests.post(url,json={
+        response = {}
+        if dst_ip == 'server':
+            url = f"http://server:8000/simple_request"
+
+            response = requests.post(url,json = {
             "src_ip":body_json['dst_ip'],
             "dst_ip":dst_ip,
-            "encrypted_payload":next_payload})
-        response.raise_for_status()
+            "payload":next_payload})
 
+            response.raise_for_status()
+
+        else:
+            response = requests.post(url,json={
+                "src_ip":body_json['dst_ip'],
+                "dst_ip":dst_ip,
+                "encrypted_payload":next_payload})
+            response.raise_for_status()
+
+        response_body = response.content
+        encrypted_response = cipher.encrypt(response_body).decode()
+
+        send_backwards = {
+            "encrypted_payload":encrypted_response
+        }
 
         return JsonResponse(send_backwards,safe = False)
     
@@ -133,6 +131,9 @@ def routePackets(request):
     
     except KeyError as e:
         return JsonResponse({'error':'something wrong with dicitonary key '},status = 400)
+
+    except Exception as e:
+        return SERVER_ERROR
     
 
 urlpatterns = [
